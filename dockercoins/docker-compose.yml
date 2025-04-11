@@ -1,45 +1,66 @@
-version: "3"
-
+version: '3.8'
 services:
   rng:
-    build: rng
+    image: vietphuong1008/dockercoins_rng:latest
     ports:
-    - "8001:80"
-    container_name: rng
+      - "8001:80"
+    deploy:
+      mode: replicated
+      replicas: 2
     networks:
-      - mynet
-
+      - coinswarmnet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
   hasher:
-    build: hasher
+    image: vietphuong1008/dockercoins_hasher:latest
     ports:
-    - "8002:80"
-    container_name: hasher
+      - "8002:80"
+    deploy:
+      mode: replicated
+      replicas: 2
     networks:
-      - mynet
-
-  webui:
-    build: webui
-    ports:
-    - "8000:80"
-    volumes:
-    - "./webui/files/:/files/"
-    container_name: webui
-    networks:
-      - mynet
-
-  redis:
-    image: redis
-    container_name: redis
-    networks:
-      - mynet
-
+      - coinswarmnet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
   worker:
-    build: worker
+    image: vietphuong1008/dockercoins_worker:latest
+    deploy:
+      mode: replicated
+      replicas: 2
     networks:
-      - mynet
-
+      - coinswarmnet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+  webui:
+    image: vietphuong1008/dockercoins_webui:latest
+    ports:
+      - "8000:80"
+    deploy:
+      mode: replicated
+      replicas: 2
+    networks:
+      - coinswarmnet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+  redis:
+    image: redis:latest
+    deploy:
+      mode: replicated
+      replicas: 1
+    networks:
+      - coinswarmnet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
 networks:
-  mynet:
-    name: mrnamnet
-    driver: bridge
-
+  coinswarmnet:
+    external: true

@@ -1,50 +1,40 @@
-version: '3'
-
+version: '3.8'
 services:
   elasticsearch:
-    image: elasticsearch:7.9.3
-    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     environment:
       - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms2g -Xmx2g
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    networks:
-      - coinswarmnet
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
-  kibana:
-    image: kibana:7.9.3
-    container_name: kibana
-    depends_on:
-      - elasticsearch
-    ports:
-      - "5601:5601"
-    networks:
-      - coinswarmnet
-  logstash:
-    image: logstash:7.9.3
-    container_name: logstash
-    ports:
-      - "12201:12201/udp"
-    depends_on:
-      - elasticsearch
     deploy:
-      mode: global
+      mode: replicated
+      replicas: 1
+    networks:
+      - loggingnet
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.12.0
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-      - logstash-pipeline:/usr/share/logstash/pipeline/
+    ports:
+      - "5044:5044"
+    deploy:
+      mode: replicated
+      replicas: 1
     networks:
-      - coinswarmnet
-configs:
-  logstash_config:
-    file: ./logstash.conf
-volumes:
-  esdata:
-    driver: local
-  logstash-pipeline:
-    driver: local
-
+      - loggingnet
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    deploy:
+      mode: replicated
+      replicas: 1
+    networks:
+      - loggingnet
 networks:
-  coinswarmnet:
+  loggingnet:
     external: true
