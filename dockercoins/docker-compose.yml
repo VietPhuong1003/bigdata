@@ -1,72 +1,58 @@
-version: '3.8'
+version: "3"
 
 services:
-  # Dịch Vụ Dockercoins
-  rng:
-    image: vietphuong1008/dockercoins_rng:latest
-    ports:
-      - "8001:80"
-    deploy:
-      mode: replicated
-      replicas: 2
-    networks:
-      - coinswarmnet
-    logging:
-      driver: "gelf"
-      options:
-        gelf-address: "udp://logstash:12201"
-
   hasher:
-    image: vietphuong1008/dockercoins_hasher:latest
-    ports:
-      - "8002:80"
-    deploy:
-      mode: replicated
-      replicas: 2
+    image: dockercoins_hasher
     networks:
       - coinswarmnet
+    depends_on:
+      - redis
     logging:
       driver: "gelf"
       options:
-        gelf-address: "udp://logstash:12201"
-
-  worker:
-    image: vietphuong1008/dockercoins_worker:latest
-    deploy:
-      mode: replicated
-      replicas: 2
-    networks:
-      - coinswarmnet
-    logging:
-      driver: "gelf"
-      options:
-        gelf-address: "udp://logstash:12201"
-
-  webui:
-    image: vietphuong1008/dockercoins_webui:latest
-    ports:
-      - "8000:80"
-    deploy:
-      mode: replicated
-      replicas: 2
-    networks:
-      - coinswarmnet
-    logging:
-      driver: "gelf"
-      options:
-        gelf-address: "udp://logstash:12201"
+        gelf-address: "udp://logstash.loggingnet:12201"
 
   redis:
-    image: redis:latest
-    deploy:
-      mode: replicated
-      replicas: 1
+    image: redis
     networks:
       - coinswarmnet
     logging:
-      driver: "json-file"
+      driver: "gelf"
       options:
-        max-size: "10m"
+        gelf-address: "udp://logstash.loggingnet:12201"
+
+  rng:
+    image: dockercoins_rng
+    networks:
+      - coinswarmnet
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://logstash.loggingnet:12201"
+
+  webui:
+    image: dockercoins_webui
+    ports:
+      - "8000:80"
+    networks:
+      - coinswarmnet
+    depends_on:
+      - redis
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://logstash.loggingnet:12201"
+
+  worker:
+    image: dockercoins_worker
+    networks:
+      - coinswarmnet
+    depends_on:
+      - redis
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://logstash.loggingnet:12201"
 
 networks:
   coinswarmnet:
