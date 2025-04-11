@@ -2,7 +2,7 @@ version: "3"
 
 services:
   hasher:
-    image: dockercoins_hasher
+     image: vietphuong1008/dockercoins_hasher:latest
     networks:
       - coinswarmnet
     depends_on:
@@ -22,7 +22,7 @@ services:
         gelf-address: "udp://logstash.loggingnet:12201"
 
   rng:
-    image: dockercoins_rng
+    image: vietphuong1008/dockercoins_rng:latest
     networks:
       - coinswarmnet
     logging:
@@ -31,7 +31,7 @@ services:
         gelf-address: "udp://logstash.loggingnet:12201"
 
   webui:
-    image: dockercoins_webui
+     image: vietphuong1008/dockercoins_webui:latest
     ports:
       - "8000:80"
     networks:
@@ -44,7 +44,7 @@ services:
         gelf-address: "udp://logstash.loggingnet:12201"
 
   worker:
-    image: dockercoins_worker
+    image: vietphuong1008/dockercoins_worker:latest
     networks:
       - coinswarmnet
     depends_on:
