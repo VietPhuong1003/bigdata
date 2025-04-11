@@ -2,42 +2,32 @@ version: "3"
 
 services:
   rng:
-    build: rng
-    ports:
-    - "8001:80"
-    container_name: rng
+    image: dockercoins_rng:latest
     networks:
-      - loggingnet
+      - coinswarmnet
 
   hasher:
-    build: hasher
-    ports:
-    - "8002:80"
-    container_name: hasher
+    image: dockercoins_hasher:latest
     networks:
-      - loggingnet
+      - coinswarmnet
 
   webui:
-    build: webui
+    image: dockercoins_webui:latest
     ports:
-    - "8000:80"
-    volumes:
-    - "./webui/files/:/files/"
-    container_name: webui
+      - "8000:80"
     networks:
-      - loggingnet
+      - coinswarmnet
 
   redis:
     image: redis
-    container_name: redis
     networks:
-      - loggingnet
+      - coinswarmnet
 
   worker:
-    build: worker
+    image: dockercoins_worker:latest
     networks:
-      - loggingnet
+      - coinswarmnet
 
 networks:
-  loggingnet:
-    driver: overlay
+  coinswarmnet:
+    external: true
