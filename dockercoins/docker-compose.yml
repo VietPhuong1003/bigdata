@@ -7,7 +7,7 @@ services:
     - "8001:80"
     container_name: rng
     networks:
-      - mynet
+      - loggingnet
 
   hasher:
     build: hasher
@@ -15,7 +15,7 @@ services:
     - "8002:80"
     container_name: hasher
     networks:
-      - mynet
+      - loggingnet
 
   webui:
     build: webui
@@ -25,21 +25,19 @@ services:
     - "./webui/files/:/files/"
     container_name: webui
     networks:
-      - mynet
+      - loggingnet
 
   redis:
     image: redis
     container_name: redis
     networks:
-      - mynet
+      - loggingnet
 
   worker:
     build: worker
     networks:
-      - mynet
+      - loggingnet
 
 networks:
-  mynet:
-    name: mrnamnet
-    driver: bridge
-
+  loggingnet:
+    driver: overlay
